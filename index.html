@@ -86,8 +86,21 @@
       <button>Trigger a Global Error</button>
     </section>
   </main>
-
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+<script>
+  window.TrackJS && TrackJS.install({ 
+    token: "47ae1de79d84490db4c31315b76bdfa1"
+    // for more configuration options, see https://docs.trackjs.com
+  });
+</script>
+                        
   <script>
+    class InputError extends Error {
+      constructor(message) {
+      super(message); // (1)
+      this.name = "InputError"; // (2)
+    }
+}
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +108,123 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      //for global error testing
+      if (firstNum === '' || secondNum === '') {
+        throw new InputError('Please enter two numbers');
+      }
+      try {
+        if(isNaN(firstNum) || isNaN(secondNum)) {
+          throw new InputError('Please enter two numbers');
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+        
+      }
+      catch (err) {
+        alert(err);
+      }
+      finally {
+        document.querySelector('#first-num').value = '';
+        document.querySelector('#second-num').value = '';
+      }
+  
+      
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-
+    
     // Start your code here
     // You may move this JS to another file if you wish
+    let consoleLog = errorBtns[0];
+    //if ouput is not empty, console log the output
+    consoleLog.addEventListener('click', () => {
+      let output = document.querySelector('output');
+      if (output.innerHTML != '') {
+        console.log(output.innerHTML);
+      }
+      else {
+        console.log('No output to log');
+      }
+    });
+    let consoleError = errorBtns[1];
+    //if not number, console error
+    consoleError.addEventListener('click', () => {
+      let firstNum = document.querySelector('#first-num').value;
+      let secondNum = document.querySelector('#second-num').value;
+      let output = document.querySelector('output');
+      if (isNaN(firstNum) || isNaN(secondNum)) {
+        console.error('Not a number');
+      }
+      if (output.innerHTML == '') {
+        console.error('No output to log');
+      }
+    });
+    let consoleCount = errorBtns[2];
+    consoleCount.addEventListener('click', () => {
+      console.count('This is a console count');
+    });
+    let consoleWarn = errorBtns[3];
+    consoleWarn.addEventListener('click', () => {
+      let output = document.querySelector('output');
+      if (output.innerHTML == '') {
+        console.warn('No output to log');
+      }
+      else {
+        console.warn('Try new operation');
+      }
+    });
+    let consoleAssert = errorBtns[4];
+    consoleAssert.addEventListener('click', () => {
+      console.assert(1 == 2, '1 is not 2');
+    });
+    let consoleClear = errorBtns[5];
+    consoleClear.addEventListener('click', () => {
+      console.clear();
+    });
+    let consoleDir = errorBtns[6];
+    consoleDir.addEventListener('click', () => {
+      console.dir(document.querySelector('form'));
+    });
+    let consoleDirxml = errorBtns[7];
+    consoleDirxml.addEventListener('click', () => {
+      console.dirxml(document.querySelector('#error-btns'));
+    });
+    let consoleGroupStart = errorBtns[8];
+    let label = 'This is a console group';
+    consoleGroupStart.addEventListener('click', () => {
+      console.group(label);
+    });
+    let consoleGroupEnd = errorBtns[9];
+    consoleGroupEnd.addEventListener('click', () => {
+      console.groupEnd(label);
+    });
+    let consoleTable = errorBtns[10];
+    consoleTable.addEventListener('click', () => {
+      console.table(errorBtns.map(btn => btn.innerHTML));
+    });
+    let consoleStartTimer = errorBtns[11];
+    consoleStartTimer.addEventListener('click', () => {
+      console.time();
+    });
+    let consoleEndTimer = errorBtns[12];
+    consoleEndTimer.addEventListener('click', () => {
+      console.timeEnd();
+    });
+    let consoleTrace = errorBtns[13];
+    consoleTrace.addEventListener('click', () => {
+      const one = () => { two(); };
+      const two = () => { three(); };
+      const three = () => { console.trace('This is a console trace'); };
+      one();
+    });
+
+    let consoleTriggerGlobalError = errorBtns[14];
+    window.addEventListener("error", (event) => {
+      console.log("This is a global error");
+    });
+    consoleTriggerGlobalError.addEventListener('click', () => {
+      throw new Error('whoops');
+    });
+    
   </script>
 </body>
 
